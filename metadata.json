@@ -1,0 +1,7 @@
+{
+  "name": "Lumina Reader",
+  "description": "A next-generation social e-book reader featuring AI-powered immersive narration, blue-light eye protection, and a vibrant community marketplace.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
