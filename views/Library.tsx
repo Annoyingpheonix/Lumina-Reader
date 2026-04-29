@@ -119,21 +119,24 @@ export const Library: React.FC<LibraryProps> = ({ books, onSelectBook, onUpload,
   };
 
   return (
-    <div className="p-5 md:p-8 max-w-7xl mx-auto pb-24 animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-        <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 dark:text-white">My Library</h2>
+    <div className="animate-in fade-in duration-500">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+        <div>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tighter text-slate-900 dark:text-white mb-1">My Library</h2>
+            <p className="text-slate-500 dark:text-slate-400 text-sm md:text-base">You have {books.length} books in your collection.</p>
+        </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          <div className="relative flex-1">
-            <Search size={18} className="absolute left-3 top-2.5 text-slate-400" />
+          <div className="relative flex-1 group">
+            <Search size={18} className="absolute left-3.5 top-3 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
             <input 
               type="text" 
               placeholder="Filter library..." 
               value={filterQuery}
               onChange={(e) => setFilterQuery(e.target.value)}
-              className="w-full sm:w-64 pl-10 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+              className="w-full sm:w-64 pl-11 pr-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/50 rounded-2xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm transition-all"
             />
           </div>
-          <button onClick={() => setIsModalOpen(true)} className={`bg-${themeColor}-600 hover:bg-${themeColor}-700 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg flex items-center justify-center gap-2`}><Plus size={20} /> Add Book</button>
+          <button onClick={() => setIsModalOpen(true)} className={`bg-${themeColor}-600 hover:bg-${themeColor}-700 text-white px-6 py-3 rounded-2xl font-bold transition-all shadow-xl shadow-${themeColor}-500/20 active:scale-95 flex items-center justify-center gap-2`}><Plus size={20} /> Add Book</button>
         </div>
       </div>
 
@@ -156,53 +159,63 @@ export const Library: React.FC<LibraryProps> = ({ books, onSelectBook, onUpload,
         </div>
       </div>
 
+      {/* Grid Optimized for Readability */}
       {filteredBooks.length === 0 ? (
-        <div className="text-center py-20 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800">
-          <BookOpen size={48} className="mx-auto text-slate-300 mb-4" />
-          <h3 className="text-lg font-bold text-slate-400">No books found</h3>
+        <div className="text-center py-24 bg-white/50 dark:bg-slate-800/30 rounded-[2.5rem] border-2 border-dashed border-slate-200 dark:border-slate-700/50">
+          <BookOpen size={64} className="mx-auto text-slate-200 dark:text-slate-700 mb-4" />
+          <h3 className="text-xl font-bold text-slate-400">Your library is empty</h3>
+          <p className="text-sm text-slate-400 mt-1 mb-8">Import your first book to get started.</p>
+          <button onClick={() => setIsModalOpen(true)} className="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold shadow-sm hover:shadow-md transition-all">Add Your First Book</button>
         </div>
       ) : (
-        <div className={viewMode === 'grid' ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 md:gap-8" : "space-y-4"}>
+        <div className={viewMode === 'grid' ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6 md:gap-10" : "space-y-4"}>
           {filteredBooks.map(book => (
-            <div key={book.id} className={viewMode === 'grid' ? "group flex flex-col" : "flex items-center gap-4 bg-white dark:bg-slate-800 p-3 rounded-2xl border border-slate-100 dark:border-slate-800 hover:shadow-lg transition-all"}>
+            <div key={book.id} className={viewMode === 'grid' ? "group flex flex-col h-full" : "flex items-center gap-6 bg-white dark:bg-slate-800 p-4 rounded-3xl border border-slate-100 dark:border-slate-800/50 hover:shadow-xl transition-all group"}>
               <div 
-                className={viewMode === 'grid' ? "aspect-[2/3] rounded-2xl overflow-hidden shadow-sm group-hover:shadow-xl transition-all duration-300 mb-3 relative cursor-pointer" : "w-14 h-20 rounded-lg overflow-hidden flex-shrink-0 cursor-pointer"}
+                className={viewMode === 'grid' ? "aspect-[2/3] rounded-3xl overflow-hidden shadow-md group-hover:shadow-2xl transition-all duration-500 mb-4 relative cursor-pointer ring-1 ring-black/5" : "w-20 h-28 rounded-2xl overflow-hidden flex-shrink-0 cursor-pointer shadow-md group-hover:shadow-xl transition-all"}
                 onClick={() => onSelectBook(book)}
               >
-                <img src={book.coverUrl || 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt={book.title} />
+                <img src={book.coverUrl || 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt={book.title} />
                 {book.progress > 0 && (
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/20">
-                    <div className={`h-full bg-${themeColor}-500 transition-all duration-500`} style={{ width: `${book.progress}%` }} />
+                  <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-black/20 backdrop-blur-md">
+                    <div className={`h-full bg-${themeColor}-500 transition-all duration-700`} style={{ width: `${book.progress}%` }} />
                   </div>
                 )}
                 {viewMode === 'grid' && book.progress > 0 && (
-                   <div className="absolute top-2 right-2 px-1.5 py-0.5 bg-black/70 backdrop-blur-md rounded text-[9px] font-bold text-white border border-white/10">{Math.round(book.progress)}%</div>
+                   <div className="absolute top-3 right-3 px-2 py-1 bg-black/70 backdrop-blur-md rounded-lg text-[10px] font-bold text-white border border-white/10 shadow-lg">{Math.round(book.progress)}%</div>
                 )}
               </div>
               
-              <div className={viewMode === 'grid' ? "flex-1 min-w-0" : "flex-1 min-w-0"}>
-                <h3 className="font-bold text-slate-900 dark:text-white leading-tight mb-0.5 truncate cursor-pointer hover:text-indigo-500 text-sm md:text-base" onClick={() => onSelectBook(book)}>{book.title}</h3>
-                <p className="text-[10px] md:text-xs text-slate-500 truncate mb-2">{book.author}</p>
+              <div className={viewMode === 'grid' ? "flex flex-col flex-1" : "flex-1 min-w-0"}>
+                <div className="flex-1">
+                    <h3 className="font-bold text-slate-900 dark:text-white leading-tight mb-1 line-clamp-2 cursor-pointer hover:text-indigo-500 transition-colors text-base md:text-lg" onClick={() => onSelectBook(book)}>{book.title}</h3>
+                    <p className="text-xs font-medium text-slate-400 dark:text-slate-500 truncate mb-4 italic">by {book.author}</p>
+                </div>
+
                 {viewMode === 'list' && (
-                  <div className="flex items-center gap-4">
-                    <div className="flex-1 max-w-[120px] h-1.5 bg-slate-100 dark:bg-slate-900 rounded-full overflow-hidden">
-                       <div className={`h-full bg-${themeColor}-500 transition-all duration-500`} style={{ width: `${book.progress}%` }} />
+                  <div className="flex items-center gap-6 mb-4">
+                    <div className="flex-1 max-w-[200px] h-2 bg-slate-100 dark:bg-slate-900 rounded-full overflow-hidden">
+                       <div className={`h-full bg-${themeColor}-500 transition-all duration-700`} style={{ width: `${book.progress}%` }} />
                     </div>
-                    <span className="text-[9px] font-bold text-slate-400">{Math.round(book.progress)}%</span>
+                    <span className="text-xs font-bold text-slate-400">{Math.round(book.progress)}% Completed</span>
                   </div>
                 )}
-                <div className="flex items-center gap-1 mt-auto">
+                
+                <div className="flex items-center justify-between mt-auto pt-2">
+                    <div className="flex items-center gap-1">
+                        <button 
+                            onClick={() => onSelectBook(book)} 
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl bg-${themeColor}-50 dark:bg-${themeColor}-900/20 text-${themeColor}-600 dark:text-${themeColor}-400 font-bold text-xs hover:bg-${themeColor}-100 dark:hover:bg-${themeColor}-900/40 transition-colors shadow-sm active:scale-95`}
+                        >
+                            <Play size={14} fill="currentColor" /> {book.progress > 0 ? 'Continue' : 'Start'}
+                        </button>
+                    </div>
                     <button 
-                      onClick={() => onSelectBook(book)} 
-                      className={`p-1.5 rounded-lg text-${themeColor}-600 hover:bg-${themeColor}-50 dark:hover:bg-${themeColor}-900/20 transition-all`}
+                        onClick={() => onDelete(book.id)} 
+                        className="p-2.5 rounded-xl text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all opacity-0 group-hover:opacity-100"
+                        title="Remove from Library"
                     >
-                      <Play size={16} fill="currentColor" />
-                    </button>
-                    <button 
-                      onClick={() => onDelete(book.id)} 
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
-                    >
-                      <Trash2 size={16} />
+                        <Trash2 size={18} />
                     </button>
                 </div>
               </div>

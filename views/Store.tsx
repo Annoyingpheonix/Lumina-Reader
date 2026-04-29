@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Book } from '../types';
-import { ShoppingBag, Star, Search, X, Filter, Tag, BookOpen, ChevronRight, Check, Award, Clock, ExternalLink, Loader2, Globe } from 'lucide-react';
+import { ShoppingBag, Star, Search, X, Filter, Tag, BookOpen, ChevronRight, Check, Award, Clock, ExternalLink, Loader2, Globe, AlertCircle } from 'lucide-react';
 
 interface StoreProps {
   books: Book[];
@@ -27,9 +27,17 @@ export const Store: React.FC<StoreProps> = ({ books: initialBooks, onPurchase, t
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [isDescriptionLoading, setIsDescriptionLoading] = useState(false);
+  const cache = useRef<Record<string, Book[]>>({});
 
   const categories = ['All', 'Fiction', 'Science', 'History', 'Romance', 'Mystery', 'Fantasy', 'Technology', 'Thriller', 'Biography'];
   const abortControllerRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    // Initial load: show pre-defined books instantly
+    if (apiBooks.length === 0) {
+      setApiBooks(initialBooks);
+    }
+  }, []);
 
   useEffect(() => {
     if (abortControllerRef.current) abortControllerRef.current.abort();
@@ -37,12 +45,39 @@ export const Store: React.FC<StoreProps> = ({ books: initialBooks, onPurchase, t
     abortControllerRef.current = controller;
 
     const fetchBooks = async () => {
-      setIsLoading(true);
       setError('');
-      const googleQuery = searchQuery ? searchQuery : `subject:${selectedCategory === 'All' ? 'fiction' : selectedCategory}`;
+      
+      const categoryQuery = selectedCategory.toLowerCase();
+      const googleQuery = searchQuery ? searchQuery : `subject:${categoryQuery === 'all' ? 'fiction' : categoryQuery}`;
+      
+      // Check cache first
+      if (cache.current[googleQuery]) {
+        setApiBooks(cache.current[googleQuery]);
+        return;
+      }
+
+      setIsLoading(true);
+      
       try {
-        const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(googleQuery)}&maxResults=20&langRestrict=en`, { signal: controller.signal });
+        const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(googleQuery)}&maxResults=20&langRestrict=en`, { 
+          signal: controller.signal,
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+        
+        if (!res.ok) {
+           if (res.status === 429) {
+             setError('The store is currently busy. Showing offline content.');
+             if (apiBooks.length === 0) setApiBooks(initialBooks);
+             setIsLoading(false);
+             return;
+           }
+           throw new Error(`API returned ${res.status}`);
+        }
+
         const data = await res.json();
+        
         if (data.items && !controller.signal.aborted) {
             const mapped = data.items.map((item: any) => ({
                 id: item.id,
@@ -54,24 +89,50 @@ export const Store: React.FC<StoreProps> = ({ books: initialBooks, onPurchase, t
                 totalPages: item.volumeInfo.pageCount || 250,
                 category: item.volumeInfo.categories?.[0] || 'General',
                 price: item.saleInfo?.listPrice?.amount || (Math.floor(Math.random() * 10) + 4.99),
-                rating: item.volumeInfo.averageRating || (Math.random() * 2 + 3).toFixed(1),
-                reviews: []
+                rating: Number(item.volumeInfo.averageRating || (Math.random() * 2 + 3).toFixed(1)),
+                reviews: [],
+                bookmarks: []
             }));
+            cache.current[googleQuery] = mapped;
             setApiBooks(mapped);
+        } else if (!data.items && !controller.signal.aborted) {
+            // If no results from API, and it was a specific search, clear results
+            if (searchQuery || categoryQuery !== 'all') {
+                setApiBooks([]);
+            } else if (categoryQuery === 'all') {
+                setApiBooks(initialBooks);
+            }
         }
-      } catch (err: any) { if (err.name !== 'AbortError') setError('Failed to load store.'); }
+      } catch (err: any) { 
+        if (err.name !== 'AbortError') {
+            console.error('Store Fetch Error:', err);
+            // If the store is empty, always fallback to initial books so the user sees something
+            if (apiBooks.length === 0 || (!searchQuery && categoryQuery === 'all')) {
+                setApiBooks(initialBooks);
+            }
+            setError('We are having trouble connecting to the store. Showing offline collection.'); 
+        }
+      }
       finally { if (!controller.signal.aborted) setIsLoading(false); }
     };
 
     const debounce = setTimeout(fetchBooks, 500);
     return () => { clearTimeout(debounce); controller.abort(); };
-  }, [searchQuery, selectedCategory]);
+  }, [searchQuery, selectedCategory, initialBooks]);
 
   const featuredBook = useMemo(() => apiBooks.length > 0 ? apiBooks[0] : null, [apiBooks]);
 
   return (
     <div className="p-5 md:p-8 max-w-7xl mx-auto pb-24 animate-in fade-in duration-500">
       
+      {/* Error State */}
+      {error && (
+        <div className="mb-8 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl flex items-center gap-3 text-red-600 dark:text-red-400">
+            <AlertCircle size={20} />
+            <p className="text-sm font-medium">{error}</p>
+        </div>
+      )}
+
       {/* Responsive Hero Section */}
       {featuredBook && !searchQuery && selectedCategory === 'All' && !isLoading && (
         <div className={`relative overflow-hidden rounded-3xl bg-gradient-to-br from-${themeColor}-600 to-purple-700 text-white shadow-xl mb-10`}>
@@ -96,28 +157,27 @@ export const Store: React.FC<StoreProps> = ({ books: initialBooks, onPurchase, t
       )}
 
       {/* Responsive Toolbar */}
-      <div className="flex flex-col lg:flex-row lg:items-center gap-4 mb-8">
-        <div className="relative flex-1">
-            <Search size={20} className="absolute left-4 top-3 text-slate-400" />
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-12">
+        <div className="relative flex-1 max-w-xl group">
+            <Search size={20} className="absolute left-4 top-3.5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
             <input 
                 type="text" 
-                placeholder="Search store..." 
+                placeholder="Search the book store..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm"
+                className="w-full pl-12 pr-4 py-4 rounded-[1.5rem] border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none shadow-sm transition-all"
             />
         </div>
         
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0">
-            <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg flex-shrink-0"><Filter size={16} /></div>
+        <div className="flex items-center gap-2 overflow-x-auto pb-4 pt-1 scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0 no-scrollbar">
             {categories.map(cat => (
                 <button
                     key={cat}
                     onClick={() => setSelectedCategory(cat)}
-                    className={`px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap transition-all ${
+                    className={`px-5 py-2.5 rounded-2xl text-xs font-bold uppercase tracking-widest whitespace-nowrap transition-all active:scale-95 ${
                         selectedCategory === cat 
-                        ? `bg-${themeColor}-600 text-white shadow-lg` 
-                        : 'bg-white dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700'
+                        ? `bg-${themeColor}-600 text-white shadow-xl shadow-${themeColor}-500/20` 
+                        : 'bg-white dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700'
                     }`}
                 >
                     {cat}
@@ -127,30 +187,48 @@ export const Store: React.FC<StoreProps> = ({ books: initialBooks, onPurchase, t
       </div>
 
       {/* Grid Optimized for Small Screens */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6 md:gap-10">
         {isLoading ? (
-            Array.from({length: 8}).map((_, i) => <SkeletonCard key={i} />)
-        ) : (
+            Array.from({length: 12}).map((_, i) => <SkeletonCard key={i} />)
+        ) : apiBooks.length > 0 ? (
             apiBooks.map(book => (
-                <div key={book.id} className="group flex flex-col bg-white dark:bg-slate-800 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm transition-all hover:shadow-md">
-                    <div className="aspect-[2/3] relative cursor-pointer" onClick={() => setSelectedBook(book)}>
-                        <img src={book.coverUrl} alt={book.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                        <div className="absolute bottom-2 right-2 p-1.5 bg-black/60 backdrop-blur-md rounded-lg text-white">
-                            <ShoppingBag size={14} onClick={(e) => { e.stopPropagation(); onPurchase(book); }} />
-                        </div>
+                <div key={book.id} className="group flex flex-col h-full">
+                    <div className="aspect-[2/3] rounded-[2rem] overflow-hidden shadow-md group-hover:shadow-2xl transition-all duration-700 mb-4 relative cursor-pointer ring-1 ring-black/5" onClick={() => setSelectedBook(book)}>
+                        <img src={book.coverUrl} alt={book.title} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-500" />
+                        <button 
+                            onClick={(e) => { e.stopPropagation(); onPurchase(book); }}
+                            className={`absolute bottom-4 right-4 p-3 bg-white text-slate-900 rounded-2xl shadow-xl transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hover:bg-${themeColor}-600 hover:text-white`}
+                        >
+                            <ShoppingBag size={20} />
+                        </button>
                     </div>
-                    <div className="p-3 md:p-4 flex-1 flex flex-col">
-                        <h3 className="font-bold text-xs md:text-sm text-slate-900 dark:text-white line-clamp-2 mb-1 cursor-pointer hover:text-indigo-500" onClick={() => setSelectedBook(book)}>{book.title}</h3>
-                        <p className="text-[10px] md:text-xs text-slate-500 mb-2 truncate">{book.author}</p>
+                    <div className="flex flex-col flex-1 px-1">
+                        <h3 className="font-bold text-slate-900 dark:text-white line-clamp-2 mb-1 cursor-pointer hover:text-indigo-500 transition-colors text-sm md:text-base leading-tight" onClick={() => setSelectedBook(book)}>{book.title}</h3>
+                        <p className="text-[10px] md:text-xs text-slate-400 font-medium mb-3 truncate italic">by {book.author}</p>
                         <div className="mt-auto flex items-center justify-between">
-                            <span className="font-bold text-xs md:text-sm">${book.price}</span>
-                            <div className="flex items-center gap-1 text-[10px] font-bold text-yellow-500">
+                            <span className="font-black text-slate-900 dark:text-white text-base">${book.price}</span>
+                            <div className={`flex items-center gap-1 text-[10px] font-bold text-white bg-amber-500/90 px-2 py-1 rounded-lg backdrop-blur-sm`}>
                                 <Star size={10} fill="currentColor" /> {book.rating}
                             </div>
                         </div>
                     </div>
                 </div>
             ))
+        ) : (
+            <div className="col-span-full py-20 text-center bg-white/50 dark:bg-slate-800/30 rounded-[3rem] border-2 border-dashed border-slate-200 dark:border-slate-800/50">
+                <div className="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Search size={32} className="text-slate-400" />
+                </div>
+                <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">No results found</h3>
+                <p className="text-slate-500 max-w-sm mx-auto">We couldn't find any books matching your criteria. Try searching for something else or browse categories.</p>
+                <button 
+                    onClick={() => { setSearchQuery(''); setSelectedCategory('All'); }}
+                    className={`mt-8 px-6 py-3 bg-${themeColor}-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-${themeColor}-500/20`}
+                >
+                    Reset Filters
+                </button>
+            </div>
         )}
       </div>
 

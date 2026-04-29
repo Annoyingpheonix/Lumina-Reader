@@ -428,53 +428,56 @@ export const Reader: React.FC<ReaderProps> = ({ book, onBack, onUpdateProgress, 
 
       {/* Header */}
       {!focusMode && (
-        <div className={`flex items-center justify-between px-4 pb-4 border-b z-20 backdrop-blur-md reader-header transition-colors duration-300 ${readerTheme === 'dark' ? 'border-white/10' : 'border-black/5'}`}>
-          <div className="flex items-center gap-3">
+        <div className={`flex items-center justify-between px-4 pb-4 pt-4 border-b z-30 backdrop-blur-md reader-header transition-all duration-300 ${readerTheme === 'dark' ? 'border-white/10' : 'border-black/5'}`}>
+          <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
             <button 
                 onClick={onBack} 
-                className={`flex items-center gap-2 pr-4 pl-2 py-2 rounded-full transition-colors ${readerTheme === 'dark' ? 'hover:bg-white/10 text-white' : 'hover:bg-black/5 text-slate-900'}`}
+                className={`flex items-center gap-1.5 pr-3 pl-1.5 py-1.5 rounded-full transition-colors ${readerTheme === 'dark' ? 'hover:bg-white/10 text-white' : 'hover:bg-black/5 text-slate-900 font-bold'}`}
             >
-                <ChevronLeft size={24} />
-                <span className="font-medium text-sm hidden md:block">Back</span>
+                <ChevronLeft size={22} className="md:w-6 md:h-6" />
+                <span className="font-bold text-xs uppercase tracking-tight hidden md:block">Library</span>
             </button>
-            <div className="h-6 w-px bg-current opacity-20"></div>
-            <h2 className="font-serif font-bold text-xs md:text-sm truncate max-w-[150px] md:max-w-md opacity-90">{book.title}</h2>
+            <div className="h-4 w-px bg-current opacity-10 mx-1 hidden sm:block"></div>
+            <h2 className="font-serif font-bold text-xs md:text-sm truncate opacity-90 leading-tight">
+               {book.title}
+            </h2>
           </div>
-          <div className="flex items-center gap-1 md:gap-3">
+          <div className="flex items-center gap-0.5 md:gap-2">
             <button 
               onClick={() => setShowSearch(!showSearch)} 
-              className={`p-2 rounded-full hover:opacity-70 transition-colors ${showSearch ? `text-${themeColor}-500 bg-${themeColor}-50/10` : 'opacity-60'}`}
-              title="Search Text"
+              className={`p-2 rounded-full hover:opacity-75 transition-colors ${showSearch ? `text-${themeColor}-500 bg-${themeColor}-50/10` : 'opacity-60'}`}
+              title="Search"
             >
-              <Search size={20} />
+              <Search size={18} />
             </button>
             <button 
               onClick={toggleBookmark}
-              className={`p-2 rounded-full hover:opacity-70 transition-colors ${(book.bookmarks || []).some(b => b.wordIndex === activeWordIndex) ? `text-${themeColor}-500 fill-current` : 'opacity-60'}`}
-              title="Bookmark Current Location"
+              className={`p-2 rounded-full hover:opacity-75 transition-colors ${(book.bookmarks || []).some(b => b.wordIndex === activeWordIndex) ? `text-${themeColor}-500 fill-current` : 'opacity-60'}`}
+              title="Bookmark"
             >
-              <BookmarkIcon size={20} fill={(book.bookmarks || []).some(b => b.wordIndex === activeWordIndex) ? "currentColor" : "none"} />
+              <BookmarkIcon size={18} fill={(book.bookmarks || []).some(b => b.wordIndex === activeWordIndex) ? "currentColor" : "none"} />
             </button>
             <button 
               onClick={() => { setShowChapterMenu(true); setMenuTab('chapters'); }} 
-              className="p-2 rounded-full hover:opacity-70 opacity-60 transition-colors"
-              title="Table of Contents"
+              className="p-2 rounded-full hover:opacity-75 opacity-60 transition-colors"
+              title="Contents"
             >
-              <List size={20} />
+              <List size={18} />
             </button>
             <button 
                 onClick={() => setShowSettings(!showSettings)} 
-                className={`p-2 rounded-full hover:opacity-70 transition-colors ${showSettings ? `text-${themeColor}-500` : 'opacity-60'}`}
-                title="Reading Settings"
+                className={`p-2 rounded-full hover:opacity-75 transition-colors ${showSettings ? `text-${themeColor}-500` : 'opacity-60'}`}
+                title="Settings"
             >
-                <Type size={20} />
+                <Type size={18} />
             </button>
             <button 
               onClick={toggleBuddy}
-              className={`p-2 rounded-full transition-all flex items-center gap-2 ${isBuddyActive ? `bg-${themeColor}-600 text-white shadow-lg` : 'bg-black/5 dark:bg-white/5 opacity-80'}`}
-              title="AI Reading Buddy"
+              className={`ml-1 md:ml-3 p-2.5 rounded-full transition-all flex items-center gap-2 ${isBuddyActive ? `bg-${themeColor}-600 text-white shadow-lg ring-4 ring-${themeColor}-500/20` : 'bg-black/5 dark:bg-white/5 opacity-80'}`}
+              title="AI Buddy"
             >
-              <Mic size={20} />
+              <Mic size={18} />
+              {isBuddyActive && <span className="text-[10px] font-bold uppercase hidden md:block">Buddy Active</span>}
             </button>
           </div>
         </div>
@@ -510,14 +513,14 @@ export const Reader: React.FC<ReaderProps> = ({ book, onBack, onUpdateProgress, 
       )}
 
       {/* Reader Content */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar relative" onClick={() => setShowSettings(false)}>
+      <div className="flex-1 overflow-y-auto custom-scrollbar relative px-safe" onClick={() => setShowSettings(false)}>
         <div 
           ref={contentRef}
           className={`${pageWidth} mx-auto px-6 py-12 md:py-24 transition-all duration-300 ${getFontStack()}`}
           style={{ fontSize: `${fontSize}px`, lineHeight: lineHeight }}
         >
           {blocks.map((block, bIdx) => (
-            <p key={bIdx} className="mb-6 md:mb-8 text-justify leading-relaxed">
+            <p key={bIdx} className="mb-6 md:mb-10 text-justify leading-relaxed selection:bg-indigo-500/30">
               {block.content.map((word: string, wIdx: number) => {
                 const globalIdx = block.startIndex + wIdx;
                 const isMatch = searchQuery && word.toLowerCase().includes(searchQuery.toLowerCase());
@@ -528,14 +531,14 @@ export const Reader: React.FC<ReaderProps> = ({ book, onBack, onUpdateProgress, 
                     key={globalIdx} 
                     id={`word-${globalIdx}`}
                     onClick={(e) => { e.stopPropagation(); setActiveWordIndex(globalIdx); }}
-                    className={`word-highlight inline-block px-0.5 rounded-sm cursor-pointer relative
-                      ${isActive ? `bg-${themeColor}-500/30 text-current font-medium transform scale-105` : ''}
+                    className={`word-highlight inline-block px-1 rounded-md cursor-pointer relative mx-[1px]
+                      ${isActive ? `bg-${themeColor}-600/20 text-${themeColor}-700 dark:text-${themeColor}-400 font-bold scale-110 shadow-sm ring-1 ring-${themeColor}-500/20` : ''}
                       ${isMatch ? 'bg-yellow-300 dark:bg-yellow-600/60 text-black dark:text-white' : ''}
-                      ${isBookmarked ? `border-b-2 border-${themeColor}-500` : ''}
+                      ${isBookmarked ? `border-b-2 border-${themeColor}-500/50` : ''}
                     `}
                   >
                     {word}{' '}
-                    {isBookmarked && <span className={`absolute -top-1 -right-1 w-1.5 h-1.5 bg-${themeColor}-500 rounded-full`} />}
+                    {isBookmarked && <span className={`absolute -top-0.5 -right-0.5 w-2 h-2 bg-${themeColor}-500 rounded-full border-2 border-white dark:border-black shadow-sm`} />}
                   </span>
                 );
               })}
@@ -653,21 +656,21 @@ export const Reader: React.FC<ReaderProps> = ({ book, onBack, onUpdateProgress, 
 
       {/* Footer Controls */}
       {!focusMode && (
-        <div className={`px-6 py-4 border-t z-20 backdrop-blur-xl reader-footer transition-colors duration-300 ${readerTheme === 'dark' ? 'bg-slate-950/80 border-white/10' : 'bg-white/80 border-black/5'}`}>
-          <div className="max-w-4xl mx-auto flex items-center gap-4 md:gap-6">
+        <div className={`px-6 py-6 border-t z-30 backdrop-blur-2xl reader-footer transition-all duration-300 ${readerTheme === 'dark' ? 'bg-slate-950/90 border-white/10' : 'bg-white/90 border-black/5 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]'}`}>
+          <div className="max-w-4xl mx-auto flex items-center gap-4 md:gap-8">
             <button 
                 onClick={togglePlay} 
-                className={`w-12 h-12 md:w-14 md:h-14 rounded-full flex-shrink-0 flex items-center justify-center shadow-lg transition-all active:scale-95 bg-${themeColor}-600 text-white hover:bg-${themeColor}-700 ring-4 ring-${themeColor}-100 dark:ring-${themeColor}-900/30`}
+                className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex-shrink-0 flex items-center justify-center shadow-2xl transition-all active:scale-90 bg-${themeColor}-600 text-white hover:bg-${themeColor}-700 ring-4 ring-${themeColor}-500/20 shadow-${themeColor}-500/20`}
             >
-              {isBuffering ? <Loader2 size={24} className="animate-spin" /> : isPlaying ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" className="ml-1" />}
+              {isBuffering ? <Loader2 size={28} className="animate-spin" /> : isPlaying ? <Pause size={28} fill="currentColor" /> : <Play size={28} fill="currentColor" className="ml-1" />}
             </button>
             <div className="flex-1 min-w-0">
-              <div className="flex justify-between text-[10px] font-bold uppercase mb-2 opacity-60">
-                <span className="truncate mr-2">Reading Progress</span>
-                <span>{Math.round((activeWordIndex / words.length) * 100)}%</span>
+              <div className="flex justify-between text-[10px] font-black uppercase tracking-[0.2em] mb-3 opacity-50">
+                <span className="truncate">{Math.round((activeWordIndex / words.length) * 100)}% Complete</span>
+                <span>{words.length - activeWordIndex} words left</span>
               </div>
               <div 
-                className="h-2 w-full bg-black/5 dark:bg-white/10 rounded-full overflow-hidden cursor-pointer group"
+                className="h-3 md:h-4 w-full bg-slate-200 dark:bg-white/10 rounded-full overflow-hidden cursor-pointer group relative"
                 onClick={(e) => {
                     const rect = e.currentTarget.getBoundingClientRect();
                     const ratio = (e.clientX - rect.left) / rect.width;
@@ -675,15 +678,19 @@ export const Reader: React.FC<ReaderProps> = ({ book, onBack, onUpdateProgress, 
                 }}
               >
                 <div 
-                    className={`h-full bg-${themeColor}-500 transition-all duration-300 relative`} 
+                    className={`h-full bg-gradient-to-r from-${themeColor}-600 to-${themeColor}-400 transition-all duration-300 relative rounded-full`} 
                     style={{ width: `${(activeWordIndex / words.length) * 100}%` }}
                 >
-                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow opacity-0 group-hover:opacity-100 transition-opacity transform translate-x-1.5" />
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-xl opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 border-2 border-indigo-500 scale-125" />
                 </div>
               </div>
             </div>
-            <button onClick={() => setFocusMode(true)} className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 opacity-60 hover:opacity-100 transition-all" title="Focus Mode">
-                <Maximize2 size={20} />
+            <button 
+              onClick={() => setFocusMode(true)} 
+              className="p-3 rounded-2xl bg-black/5 dark:bg-white/5 text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10 transition-all active:scale-95 hidden sm:block" 
+              title="Focus Mode"
+            >
+                <Maximize2 size={24} />
             </button>
           </div>
         </div>

@@ -185,13 +185,13 @@ export const Profile: React.FC<ProfileProps> = ({ user, onLogout, theme, onToggl
               </div>
 
               {/* Stats Grid */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-6 border-t border-slate-100 dark:border-slate-700/50">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pt-6 border-t border-slate-100 dark:border-slate-700/50">
                   {displayStats.map((stat, idx) => (
-                      <div key={idx} className="flex flex-col items-center md:items-start p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                          <div className="flex items-center gap-2 text-slate-400 mb-1 text-xs font-bold uppercase tracking-wider">
+                      <div key={idx} className="flex flex-col items-center md:items-start p-4 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all group">
+                          <div className="flex items-center gap-2 text-slate-400 mb-2 text-xs font-bold uppercase tracking-widest group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors">
                               <stat.icon size={14} /> {stat.label}
                           </div>
-                          <div className={`text-2xl font-bold text-${themeColor}-600 dark:text-${themeColor}-400`}>
+                          <div className={`text-2xl md:text-3xl font-bold text-${themeColor}-600 dark:text-${themeColor}-400`}>
                               {stat.value}
                           </div>
                       </div>
@@ -200,62 +200,58 @@ export const Profile: React.FC<ProfileProps> = ({ user, onLogout, theme, onToggl
           </div>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           {/* Main Column */}
-          <div className="md:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-8">
               
               {/* Level Progress */}
-              <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
-                  <div className="flex justify-between items-center mb-4">
+              <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 md:p-8 shadow-sm border border-slate-200 dark:border-slate-700">
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                       <div>
-                        <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
                             <Zap size={20} className={`text-${themeColor}-500`} fill="currentColor" /> 
                             Level Progress
                         </h3>
-                        <p className="text-xs text-slate-500 mt-1">Earn XP by reading books and completing achievements.</p>
+                        <p className="text-sm text-slate-500 mt-1">Earn XP by reading books and completing achievements.</p>
                       </div>
-                      <div className="text-right">
-                         <span className="text-2xl font-bold text-slate-900 dark:text-white">{currentLevel}</span>
-                         <span className="text-xs text-slate-400 uppercase font-bold ml-1">Lvl</span>
+                      <div className="text-right bg-slate-50 dark:bg-slate-900 px-4 py-2 rounded-2xl border border-slate-100 dark:border-slate-800">
+                         <span className="text-3xl font-bold text-slate-900 dark:text-white leading-none">{currentLevel}</span>
+                         <span className="text-xs text-slate-400 uppercase font-bold ml-2">Lvl</span>
                       </div>
                   </div>
                   
-                  <div className="relative pt-1">
-                    <div className="flex mb-2 items-center justify-between">
-                        <div>
-                        <span className={`text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-${themeColor}-600 bg-${themeColor}-200 dark:bg-${themeColor}-900/30`}>
-                            XP
+                  <div className="relative">
+                    <div className="flex mb-3 items-center justify-between px-1">
+                        <span className={`text-[10px] font-bold uppercase tracking-widest text-${themeColor}-600 dark:text-${themeColor}-400`}>
+                            {xpProgress} / 1000 XP
                         </span>
-                        </div>
-                        <div className="text-right">
-                        <span className="text-xs font-semibold inline-block text-slate-600 dark:text-slate-400">
-                            {xpProgress} / 1000
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            {Math.round((xpProgress / 1000) * 100)}% to Lvl {currentLevel + 1}
                         </span>
-                        </div>
                     </div>
-                    <div className="overflow-hidden h-3 mb-4 text-xs flex rounded-full bg-slate-100 dark:bg-slate-700">
-                        <div style={{ width: `${(xpProgress / 1000) * 100}%` }} className={`shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-gradient-to-r from-${themeColor}-500 to-${themeColor}-400 transition-all duration-1000 ease-out`}></div>
+                    <div className="overflow-hidden h-4 mb-4 text-xs flex rounded-full bg-slate-100 dark:bg-slate-900 shadow-inner">
+                        <div style={{ width: `${(xpProgress / 1000) * 100}%` }} className={`shadow-sm flex flex-col text-center whitespace-nowrap text-white justify-center bg-gradient-to-r from-${themeColor}-600 to-${themeColor}-400 transition-all duration-1000 ease-out relative`}>
+                            <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+                        </div>
                     </div>
                   </div>
               </div>
 
               {/* Achievements */}
-              <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+              <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 md:p-8 shadow-sm border border-slate-200 dark:border-slate-700">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
                       <div>
-                          <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2 text-lg">
+                          <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
                               <Trophy size={20} className={`text-${themeColor}-500`} /> 
                               Achievements
                           </h3>
-                          <div className="flex items-center gap-2 mt-1">
-                              <span className="text-xs text-slate-500">{achievements.filter(a => a.completed).length} of {achievements.length} unlocked</span>
-                          </div>
+                          <p className="text-sm text-slate-500 mt-1">{achievements.filter(a => a.completed).length} of {achievements.length} badges earned</p>
                       </div>
                   </div>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {achievements.map(ach => (
-                          <div key={ach.id} className={`relative overflow-hidden flex flex-col p-5 rounded-2xl border transition-all ${ach.completed ? 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-sm hover:border-slate-300 dark:hover:border-slate-600' : 'bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-700/50'}`}>
+                          <div key={ach.id} className={`group relative overflow-hidden flex flex-col p-6 rounded-[2rem] border transition-all duration-300 ${ach.completed ? 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md' : 'bg-slate-50/50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800/50 opacity-60'}`}>
                               
                               <div className="flex items-start justify-between mb-3 z-10 relative">
                                   <div className={`w-12 h-12 rounded-xl ${ach.completed ? ach.bg : 'bg-slate-200 dark:bg-slate-700'} ${ach.completed ? ach.color : 'text-slate-400'} flex items-center justify-center shadow-sm transition-colors`}>

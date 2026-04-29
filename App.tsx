@@ -188,10 +188,15 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className={`min-h-screen flex flex-col md:flex-row bg-slate-50 dark:bg-slate-950 relative overflow-hidden`}>
+    <div className={`min-h-screen flex flex-col md:flex-row bg-slate-50 dark:bg-slate-950 relative overflow-hidden selection:bg-${themeColor}-100 dark:selection:bg-${themeColor}-900/30`}>
       <style>{`
         .mobile-bottom-nav {
            padding-bottom: env(safe-area-inset-bottom, 0.5rem);
+        }
+        @media (min-width: 768px) {
+          .desktop-content-area {
+            padding-left: 16rem; /* w-64 */
+          }
         }
       `}</style>
 
@@ -223,16 +228,16 @@ const App: React.FC = () => {
       )}
 
       {/* Sidebar Nav (Desktop) */}
-      <aside className="hidden md:flex w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex-col fixed h-full z-10">
+      <aside className="hidden md:flex w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex-col fixed h-full z-40 shadow-sm transition-all duration-500">
         <div className="p-8">
-            <div className="flex items-center gap-3 mb-12">
-                <div className={`w-8 h-8 bg-${themeColor}-600 rounded-lg flex items-center justify-center shadow-md`}>
-                    <BookOpen className="text-white" size={18} />
+            <div className="flex items-center gap-3 mb-10">
+                <div className={`w-10 h-10 bg-${themeColor}-600 rounded-xl flex items-center justify-center shadow-lg shadow-${themeColor}-500/20`}>
+                    <BookOpen className="text-white" size={20} />
                 </div>
                 <span className="font-bold text-2xl dark:text-white tracking-tighter">Lumina</span>
             </div>
 
-            <nav className="space-y-2">
+            <nav className="space-y-1.5">
                 {[
                     { id: 'library', icon: BookOpen, label: 'Library' },
                     { id: 'store', icon: ShoppingBag, label: 'Store' },
@@ -242,35 +247,43 @@ const App: React.FC = () => {
                     <button
                         key={item.id}
                         onClick={() => setCurrentView(item.id as any)}
-                        className={`w-full flex items-center gap-4 p-3 rounded-2xl transition-all ${
+                        className={`w-full flex items-center gap-3.5 p-3.5 rounded-2xl transition-all duration-300 ${
                             currentView === item.id 
-                                ? `bg-${themeColor}-50 dark:bg-${themeColor}-900/20 text-${themeColor}-600 dark:text-${themeColor}-400 font-bold` 
-                                : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                ? `bg-${themeColor}-600 text-white shadow-lg shadow-${themeColor}-500/20 font-bold scale-[1.02]` 
+                                : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100/50 dark:hover:bg-slate-800/50'
                         }`}
                     >
-                        <item.icon size={22} />
-                        <span>{item.label}</span>
+                        <item.icon size={20} />
+                        <span className="text-sm font-medium">{item.label}</span>
                     </button>
                 ))}
             </nav>
         </div>
 
-        <button 
-          onClick={() => setIsCommandOpen(true)}
-          className="mx-6 mt-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center gap-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-left"
-        >
-          <Search size={18} />
-          <span className="text-[10px] font-bold uppercase tracking-widest">Search...</span>
-          <div className="ml-auto text-[9px] font-bold opacity-30 tracking-tight">⌘ K</div>
-        </button>
+        <div className="px-6 mt-2">
+            <button 
+                onClick={() => setIsCommandOpen(true)}
+                className="w-full p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 flex items-center gap-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-left group"
+            >
+                <Search size={16} className="group-hover:scale-110 transition-transform" />
+                <span className="text-[10px] font-bold uppercase tracking-widest">Search...</span>
+                <div className="ml-auto text-[9px] font-bold opacity-30 tracking-tight">⌘ K</div>
+            </button>
+        </div>
 
-        <div className="mt-auto p-8 border-t border-slate-50 dark:border-slate-800">
-            <div className="flex items-center gap-3">
-                <img src={user.avatar} className="w-10 h-10 rounded-full object-cover shadow-sm" />
+        <div className="mt-auto p-8 border-t border-slate-100 dark:border-slate-800">
+            <div 
+              className="flex items-center gap-3 cursor-pointer group"
+              onClick={() => setCurrentView('profile')}
+            >
+                <div className="relative">
+                    <img src={user.avatar} className="w-10 h-10 rounded-full object-cover shadow-sm group-hover:ring-2 ring-indigo-500 transition-all" />
+                    <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white dark:border-slate-900 rounded-full"></div>
+                </div>
                 <div className="overflow-hidden">
-                    <div className="text-sm font-bold truncate dark:text-white">{user.name}</div>
-                    <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                      Standard
+                    <div className="text-sm font-bold truncate dark:text-white group-hover:text-indigo-500 transition-colors uppercase tracking-tight">{user.name}</div>
+                    <div className="text-[9px] font-bold uppercase tracking-widest text-slate-400">
+                      Standard Plan
                     </div>
                 </div>
             </div>
@@ -278,8 +291,9 @@ const App: React.FC = () => {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 md:ml-64 p-0 pb-20 md:pb-0 h-screen overflow-y-auto bg-slate-50 dark:bg-slate-900 transition-all duration-300">
-          <div className="max-w-7xl mx-auto">
+      <main className="flex-1 desktop-content-area min-h-screen relative overflow-hidden transition-all duration-500">
+          <div className="h-full overflow-y-auto custom-scrollbar pb-24 md:pb-8">
+            <div className="max-w-screen-xl mx-auto px-4 md:px-8 py-6 md:py-10">
             {currentView === 'library' && (
                 <Library 
                     books={library} 
@@ -304,11 +318,12 @@ const App: React.FC = () => {
                     onUpdateUser={(u) => setUser(u)}
                 />
             )}
+            </div>
           </div>
       </main>
 
       {/* Bottom Nav (Mobile Only) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 z-40 flex justify-around p-3 mobile-bottom-nav">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 z-40 flex justify-around p-3 mobile-bottom-nav shadow-[0_-8px_30px_rgb(0,0,0,0.04)]">
         {[
             { id: 'library', icon: BookOpen },
             { id: 'store', icon: ShoppingBag },
