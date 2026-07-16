@@ -127,16 +127,16 @@ export const Library: React.FC<LibraryProps> = ({ books, onSelectBook, onUpload,
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <div className="relative flex-1 group">
-            <Search size={18} className="absolute left-3.5 top-3 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+            <Search size={16} className="absolute left-4 top-3.5 text-slate-400 group-focus-within:text-slate-800 transition-colors" />
             <input 
               type="text" 
               placeholder="Filter library..." 
               value={filterQuery}
               onChange={(e) => setFilterQuery(e.target.value)}
-              className="w-full sm:w-64 pl-11 pr-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/50 rounded-2xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm transition-all"
+              className="w-full sm:w-64 pl-11 pr-4 py-3 bg-slate-200/80 dark:bg-slate-800 border-none rounded-full text-sm outline-none transition-all placeholder:text-slate-500 font-medium h-[46px]"
             />
           </div>
-          <button onClick={() => setIsModalOpen(true)} className={`bg-${themeColor}-600 hover:bg-${themeColor}-700 text-white px-6 py-3 rounded-2xl font-bold transition-all shadow-xl shadow-${themeColor}-500/20 active:scale-95 flex items-center justify-center gap-2`}><Plus size={20} /> Add Book</button>
+          <button onClick={() => setIsModalOpen(true)} className={`bg-${themeColor}-600 hover:bg-${themeColor}-700 text-white px-6 py-3 h-[46px] rounded-full font-bold transition-all shadow-md active:scale-95 flex items-center justify-center gap-2`}><Plus size={18} /> Add Book</button>
         </div>
       </div>
 
@@ -205,9 +205,9 @@ export const Library: React.FC<LibraryProps> = ({ books, onSelectBook, onUpload,
                     <div className="flex items-center gap-1">
                         <button 
                             onClick={() => onSelectBook(book)} 
-                            className={`flex items-center gap-2 px-4 py-2 rounded-xl bg-${themeColor}-50 dark:bg-${themeColor}-900/20 text-${themeColor}-600 dark:text-${themeColor}-400 font-bold text-xs hover:bg-${themeColor}-100 dark:hover:bg-${themeColor}-900/40 transition-colors shadow-sm active:scale-95`}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold text-xs hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors shadow-sm active:scale-95`}
                         >
-                            <Play size={14} fill="currentColor" /> {book.progress > 0 ? 'Continue' : 'Start'}
+                            <Play size={12} fill="currentColor" /> {book.progress > 0 ? 'Continue' : 'Start'}
                         </button>
                     </div>
                     <button 

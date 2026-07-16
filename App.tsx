@@ -167,14 +167,12 @@ const App: React.FC = () => {
     setActiveBook(updatedBook);
   };
 
-  const themeColor = theme.primaryColor || 'indigo';
+  const themeColor = theme.primaryColor || 'rose';
 
   if (!user) {
     return (
       <div className="min-h-screen bg-white dark:bg-slate-950 flex flex-col items-center justify-center p-8 font-sans">
-        <div className={`w-20 h-20 bg-${themeColor}-600 rounded-3xl flex items-center justify-center shadow-2xl mb-8 animate-bounce`}>
-          <BookOpen className="text-white" size={40} />
-        </div>
+        <img src="/logo.jpg" alt="Lumina Logo" className="w-20 h-20 rounded-3xl shadow-2xl mb-8 animate-bounce" />
         <h1 className="text-5xl font-bold tracking-tighter mb-4 text-slate-900 dark:text-white">Lumina</h1>
         <p className="text-lg md:text-xl text-slate-500 text-center max-w-md mb-12">The world's most intelligent reading companion. Powered by Gemini.</p>
         <button 
@@ -231,9 +229,7 @@ const App: React.FC = () => {
       <aside className="hidden md:flex w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex-col fixed h-full z-40 shadow-sm transition-all duration-500">
         <div className="p-8">
             <div className="flex items-center gap-3 mb-10">
-                <div className={`w-10 h-10 bg-${themeColor}-600 rounded-xl flex items-center justify-center shadow-lg shadow-${themeColor}-500/20`}>
-                    <BookOpen className="text-white" size={20} />
-                </div>
+                <img src="/logo.jpg" alt="Lumina Logo" className="w-10 h-10 rounded-xl shadow-lg" />
                 <span className="font-bold text-2xl dark:text-white tracking-tighter">Lumina</span>
             </div>
 
@@ -243,31 +239,37 @@ const App: React.FC = () => {
                     { id: 'store', icon: ShoppingBag, label: 'Store' },
                     { id: 'social', icon: Users, label: 'Community' },
                     { id: 'profile', icon: UserIcon, label: 'Profile' },
-                ].map((item) => (
-                    <button
-                        key={item.id}
-                        onClick={() => setCurrentView(item.id as any)}
-                        className={`w-full flex items-center gap-3.5 p-3.5 rounded-2xl transition-all duration-300 ${
-                            currentView === item.id 
-                                ? `bg-${themeColor}-600 text-white shadow-lg shadow-${themeColor}-500/20 font-bold scale-[1.02]` 
-                                : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100/50 dark:hover:bg-slate-800/50'
-                        }`}
-                    >
-                        <item.icon size={20} />
-                        <span className="text-sm font-medium">{item.label}</span>
-                    </button>
-                ))}
+                ].map((item) => {
+                    const isActive = currentView === item.id;
+                    return (
+                        <button
+                            key={item.id}
+                            onClick={() => setCurrentView(item.id as any)}
+                            className={`w-[calc(100%+2rem)] -ml-8 pl-8 relative flex items-center gap-3.5 pr-4 py-3.5 rounded-r-2xl transition-all duration-300 ${
+                                isActive 
+                                    ? `bg-${themeColor}-600 text-white shadow-lg shadow-${themeColor}-500/20 font-bold` 
+                                    : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-l-2xl'
+                            }`}
+                        >
+                            <item.icon size={20} />
+                            <span className="text-sm font-medium">{item.label}</span>
+                            {isActive && (
+                                <div className="absolute right-3 top-1/2 -translate-y-1/2 w-16 h-8 bg-black/15 rounded-full" />
+                            )}
+                        </button>
+                    );
+                })}
             </nav>
         </div>
 
         <div className="px-6 mt-2">
             <button 
                 onClick={() => setIsCommandOpen(true)}
-                className="w-full p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 flex items-center gap-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-left group"
+                className="w-full px-5 py-3.5 rounded-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 flex items-center gap-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-left group"
             >
                 <Search size={16} className="group-hover:scale-110 transition-transform" />
                 <span className="text-[10px] font-bold uppercase tracking-widest">Search...</span>
-                <div className="ml-auto text-[9px] font-bold opacity-30 tracking-tight">⌘ K</div>
+                <div className="ml-auto flex items-center justify-center text-[10px] font-bold opacity-40">⌘ K</div>
             </button>
         </div>
 
